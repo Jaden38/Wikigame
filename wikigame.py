@@ -10,6 +10,23 @@ def get_random_wikipedia_url():
     title = soup.find('h1').text
     return response.url, title
 
+def should_exclude_link(href, text, link_classes):
+    """Vérifie si un lien doit être exclu."""
+    if not href.startswith('/wiki/'):
+        return True
+    if ':' in href:
+        return True
+    if href.startswith('/wiki/Special:'):
+        return True
+    if 'modifier' in text.lower():
+        return True
+    if 'article' in text.lower():
+        return True
+    if 'lire' in text.lower():
+        return True
+    if 'external text' in link_classes:
+        return True
+    return False
 
 def get_links(url):
     response = requests.get(url)
@@ -20,17 +37,28 @@ def get_links(url):
     unique_links = {}
     for link in links:
         href = link.get('href', '')
-        if href.startswith('/wiki/') and ':' not in href and not href.startswith('/wiki/Special:'):
-            full_url = 'https://fr.wikipedia.org' + href
-            if full_url not in unique_links:
-                unique_links[full_url] = link.text.strip()
+        text = link.text.strip()
+        link_classes = link.get('class', [])
+        
+        # Vérifier si le lien doit être exclu
+        if should_exclude_link(href, text, link_classes):
+            continue
+        
+        full_url = 'https://fr.wikipedia.org' + href
+        if full_url not in unique_links:
+            unique_links[full_url] = text
     
     return list(unique_links.items())
 
-
-
-
-
+def get_first_paragraph(url):
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    paragraphs = soup.find_all('p')
+    for paragraph in paragraphs:
+        text = paragraph.text.strip()
+        if text and not any(keyword in text.lower() for keyword in ['ébauche', 'modifier', 'lire', 'vous pouvez partager vos connaissances']):
+            return text
+    return "Pas de résumé disponible."
 
 def play_game(depart=None, cible=None):
     if depart is None:
@@ -57,6 +85,10 @@ def play_game(depart=None, cible=None):
         print("Départ:", start_title)
         print("Cible:", end_title)
         print("Actuellement:", current_title)
+
+        # Afficher le résumé
+        summary = get_first_paragraph(current_url)
+        print("Résumé:", summary)
 
         links = get_links(current_url)
         total_links = len(links)
