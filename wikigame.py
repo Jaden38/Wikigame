@@ -15,17 +15,8 @@ def get_links(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
     
-    # Tentative de trouver la div principale contenant le contenu de l'article
-    content = soup.find('div', class_='mw-parser-output')
-    if not content:
-        # Si la div spécifique n'est pas trouvée, rechercher la première div qui pourrait contenir le texte principal
-        content = soup.find('div', id='content')
-        if not content:
-            content = soup.find('div', role='main')
-            if not content:
-                return []  # Si aucun contenu approprié n'est trouvé, retourne une liste vide
-
-    links = content.find_all('a', href=True)
+    # Récupérer tous les liens de la page
+    links = soup.find_all('a', href=True)
     unique_links = {}
     for link in links:
         href = link.get('href', '')
@@ -33,7 +24,10 @@ def get_links(url):
             full_url = 'https://fr.wikipedia.org' + href
             if full_url not in unique_links:
                 unique_links[full_url] = link.text.strip()
+    
     return list(unique_links.items())
+
+
 
 
 
@@ -97,5 +91,5 @@ def play_game(depart=None, cible=None):
     print("Gagné en", steps, "coups!")
     webbrowser.open(current_url)
 
-play_game(depart="France", cible="Louis-Philippe Ier")
-# play_game()
+#play_game(depart="France", cible="Louis-Philippe Ier")
+play_game()
