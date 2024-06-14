@@ -1,22 +1,33 @@
 let currentLinks = [];
+let filteredLinks = [];
 let currentPage = 0;
 const linksPerPage = 20;
+let targetUrl = ""; // To store the target URL
 
-async function startGame() {
-    let gameInfo = await eel.start_game()();
-    console.log(gameInfo);  // Debug
+async function startGame(depart = "depart", cible = "cible") {
+    let gameInfo = await eel.start_game(depart, cible)();
     document.getElementById("start-title").innerText = decodeURIComponent(gameInfo.start_title.replace(/_/g, ' '));
     document.getElementById("end-title").innerText = decodeURIComponent(gameInfo.end_title.replace(/_/g, ' '));
+    targetUrl = gameInfo.end_url; // Set the target URL
     loadPage(gameInfo.start_url);
 }
 
 async function loadPage(url) {
+    if (url === targetUrl) {
+        document.getElementById("current-title").innerText = "Vous avez atteint la cible!";
+        document.getElementById("summary").innerText = "Félicitations! Vous avez atteint la page cible.";
+        document.getElementById("links-container").innerHTML = "";
+        document.getElementById("total-links").innerText = "";
+        document.getElementById("page-info").innerText = "";
+        return;
+    }
+
     let pageInfo = await eel.get_page_info(url)();
-    console.log(pageInfo);  // Debug
     document.getElementById("current-title").innerText = decodeURIComponent(pageInfo.current_title.replace(/_/g, ' '));
     document.getElementById("summary").innerText = pageInfo.summary;
 
     currentLinks = pageInfo.links;
+    filteredLinks = currentLinks; // Initialize filteredLinks to currentLinks
     currentPage = 0; // Reset to first page on new load
     displayLinks();
 }
@@ -25,19 +36,26 @@ function displayLinks() {
     let linksContainer = document.getElementById("links-container");
     linksContainer.innerHTML = "";
     let start = currentPage * linksPerPage;
-    let end = Math.min(start + linksPerPage, currentLinks.length);
+    let end = Math.min(start + linksPerPage, filteredLinks.length);
 
     for (let i = start; i < end; i++) {
         let linkElement = document.createElement("div");
-        linkElement.innerText = `${i + 1} - ${decodeURIComponent(currentLinks[i][1].replace(/_/g, ' '))}`;
-        linkElement.onclick = () => loadPage(currentLinks[i][0]);
+        linkElement.innerText = `${i + 1} - ${decodeURIComponent(filteredLinks[i][1].replace(/_/g, ' '))}`;
+        linkElement.onclick = () => loadPage(filteredLinks[i][0]);
         linksContainer.appendChild(linkElement);
     }
     updatePaginationInfo();
 }
 
+function filterLinks() {
+    let query = document.getElementById("search-bar").value.toLowerCase();
+    filteredLinks = currentLinks.filter(link => link[1].toLowerCase().includes(query));
+    currentPage = 0; // Reset to first page on new search
+    displayLinks();
+}
+
 function updatePaginationInfo() {
-    let totalLinks = currentLinks.length;
+    let totalLinks = filteredLinks.length;
     let totalPages = Math.ceil(totalLinks / linksPerPage);
     document.getElementById("total-links").innerText = `Total Links: ${totalLinks}`;
     document.getElementById("page-info").innerText = `Page: ${currentPage + 1} / ${totalPages}`;
@@ -45,12 +63,12 @@ function updatePaginationInfo() {
 }
 
 function updateButtons() {
-    document.getElementById("next").disabled = (currentPage + 1) * linksPerPage >= currentLinks.length;
+    document.getElementById("next").disabled = (currentPage + 1) * linksPerPage >= filteredLinks.length;
     document.getElementById("prev").disabled = currentPage === 0;
 }
 
 document.getElementById("next").onclick = function() {
-    if ((currentPage + 1) * linksPerPage < currentLinks.length) {
+    if ((currentPage + 1) * linksPerPage < filteredLinks.length) {
         currentPage++;
         displayLinks();
     }
@@ -63,4 +81,6 @@ document.getElementById("prev").onclick = function() {
     }
 };
 
-window.onload = startGame;
+window.onload = function() {
+    startGame("France", "Grenoble"); 
+};

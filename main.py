@@ -34,16 +34,27 @@ def get_links(url):
     soup = BeautifulSoup(response.content, 'html.parser')
     links = soup.find_all('a', href=True)
     unique_links = {}
+    seen_urls = set()  # Set to track unique URLs
+
     for link in links:
         href = link.get('href', '')
-        text = link.text.strip()
+        link_text = link.text.strip()
         link_classes = link.get('class', [])
-        if should_exclude_link(href, text, link_classes):
-            continue
         full_url = 'https://fr.wikipedia.org' + href
+
+        if should_exclude_link(href, link_text, link_classes) or full_url in seen_urls:
+            continue
+
+        seen_urls.add(full_url)  # Add to the set of seen URLs
+
+        # Extract the title from the link's attributes if available
+        link_title = link.get('title') or link.get('aria-label') or link_text
+
         if full_url not in unique_links:
-            unique_links[full_url] = text
+            unique_links[full_url] = link_title
+
     return list(unique_links.items())
+
 
 def get_first_paragraph(url):
     response = requests.get(url)
