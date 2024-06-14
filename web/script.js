@@ -4,14 +4,19 @@ let currentPage = 0;
 const linksPerPage = 20;
 let targetUrl = ""; // To store the target URL
 
-async function startGame(depart = "depart", cible = "cible") {
-    let gameInfo = await eel.start_game(depart, cible)();
+async function startGame(depart = null, cible = null) {
+    let gameInfo;
+    if (depart === null || cible === null) {
+        gameInfo = await eel.start_game()(); // Call without parameters for random links
+    } else {
+        gameInfo = await eel.start_game(depart, cible)(); // Call with provided parameters
+    }
+    
     document.getElementById("start-title").innerText = decodeURIComponent(gameInfo.start_title.replace(/_/g, ' '));
     document.getElementById("end-title").innerText = decodeURIComponent(gameInfo.end_title.replace(/_/g, ' '));
     targetUrl = gameInfo.end_url; // Set the target URL
     loadPage(gameInfo.start_url);
 }
-
 async function loadPage(url) {
     if (url === targetUrl) {
         document.getElementById("current-title").innerText = "Vous avez atteint la cible!";
@@ -82,5 +87,5 @@ document.getElementById("prev").onclick = function() {
 };
 
 window.onload = function() {
-    startGame("France", "Grenoble"); 
+    startGame(); 
 };
