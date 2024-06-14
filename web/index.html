@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WikiGame</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container" class="container">
+        <h1>WikiGame</h1>
+        <div id="game-info" class="info-box">
+            <p id="start">Départ: <span id="start-title"></span></p>
+            <p id="target">Cible: <span id="end-title"></span></p>
+        </div>
+        <div id="content-container">
+            <div id="summary-container" class="summary-box">
+                <p id="current">Actuellement: <span id="current-title"></span></p>
+                <p id="summary"></p>
+            </div>
+            <div id="links-container" class="links-container"></div>
+        </div>
+        <div id="pagination-info" class="pagination-info">
+            <p id="total-links"></p>
+            <p id="page-info"></p>
+        </div>
+        <div class="buttons">
+            <button id="prev" class="btn">Previous Page</button>
+            <button id="next" class="btn">Next Page</button>
+        </div>
+    </div>
+    <script src="eel.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
