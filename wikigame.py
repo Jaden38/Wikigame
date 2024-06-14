@@ -53,12 +53,17 @@ def get_links(url):
 def get_first_paragraph(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
-    paragraphs = soup.find_all('p')
-    for paragraph in paragraphs:
-        text = paragraph.text.strip()
-        if text and not any(keyword in text.lower() for keyword in ['ébauche', 'modifier', 'lire', 'vous pouvez partager vos connaissances']):
-            return text
+    content_div = soup.find('div', {'class': 'mw-content-ltr mw-parser-output'})
+    
+    if content_div:
+        # Parcours des enfants directs de content_div
+        for child in content_div.children:
+            if child.name == 'p' and child.text.strip():
+                text = child.text.strip()
+                if len(text) > 50:  # Vérifie que le paragraphe contient plus de 50 caractères
+                    return text
     return "Pas de résumé disponible."
+
 
 def play_game(depart=None, cible=None):
     if depart is None:
@@ -84,9 +89,9 @@ def play_game(depart=None, cible=None):
         print("************************ Tour ", steps + 1 ," ************************")
         print("Départ:", start_title)
         print("Cible:", end_title)
-        print("Actuellement:", current_title)
+        print("\nActuellement:", current_title)
 
-        # Afficher le résumé
+
         summary = get_first_paragraph(current_url)
         print("Résumé:", summary)
 
@@ -95,7 +100,8 @@ def play_game(depart=None, cible=None):
         total_pages = (total_links - 1) // 20 + 1
         page_links = links[page * 20:(page + 1) * 20]
         
-        print(f"Liens disponibles: {total_links}")
+        # Affichage le nombre de liens disponibles et le nombre de pages de 20 liens et la page actuelle
+        print(f"\nLiens disponibles: {total_links} - Pages disponibles: {total_pages} - Page actuelle: {page + 1}\n")
 
         for i, (url, text) in enumerate(page_links):
             print(f"{i + 1 + page * 20} - {text}")
@@ -123,5 +129,7 @@ def play_game(depart=None, cible=None):
     print("Gagné en", steps, "coups!")
     webbrowser.open(current_url)
 
-#play_game(depart="France", cible="Louis-Philippe Ier")
+# play_game(depart="France", cible="Louis-Philippe Ier")
+# play_game(depart="troisième guerre punique", cible="Louis-Philippe Ier")
+
 play_game()
