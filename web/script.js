@@ -6,9 +6,45 @@ let targetUrl = "";
 let hoverTimeout = null;
 
 window.onload = function() {
-    startGame();
+    if (document.getElementById("start-title")) { // Check if we are on the game page
+        startGame();
+    }
     if (localStorage.getItem('dark-mode') === 'enabled') {
         document.body.classList.add('dark-mode');
+    }
+
+    const startGameButton = document.getElementById("start-game");
+    if (startGameButton) {
+        startGameButton.onclick = function() {
+            window.location.href = "game.html";
+        };
+    }
+
+    const menuButton = document.querySelector(".menu-button");
+    if (menuButton) {
+        menuButton.onclick = function() {
+            window.location.href = "index.html";
+        };
+    }
+
+    const nextButton = document.getElementById("next");
+    if (nextButton) {
+        nextButton.onclick = function() {
+            if ((currentPage + 1) * linksPerPage < filteredLinks.length) {
+                currentPage++;
+                displayLinks();
+            }
+        };
+    }
+
+    const prevButton = document.getElementById("prev");
+    if (prevButton) {
+        prevButton.onclick = function() {
+            if (currentPage > 0) {
+                currentPage--;
+                displayLinks();
+            }
+        };
     }
 }
 
@@ -49,6 +85,7 @@ async function loadPage(url) {
 
 function displayLinks() {
     let linksContainer = document.getElementById("links-container");
+    if (!linksContainer) return;
     linksContainer.innerHTML = "";
     let start = currentPage * linksPerPage;
     let end = Math.min(start + linksPerPage, filteredLinks.length);
@@ -110,23 +147,15 @@ function updatePaginationInfo() {
 }
 
 function updateButtons() {
-    document.getElementById("next").disabled = (currentPage + 1) * linksPerPage >= filteredLinks.length;
-    document.getElementById("prev").disabled = currentPage === 0;
+    const nextButton = document.getElementById("next");
+    const prevButton = document.getElementById("prev");
+    if (nextButton) {
+        nextButton.disabled = (currentPage + 1) * linksPerPage >= filteredLinks.length;
+    }
+    if (prevButton) {
+        prevButton.disabled = currentPage === 0;
+    }
 }
-
-document.getElementById("next").onclick = function() {
-    if ((currentPage + 1) * linksPerPage < filteredLinks.length) {
-        currentPage++;
-        displayLinks();
-    }
-};
-
-document.getElementById("prev").onclick = function() {
-    if (currentPage > 0) {
-        currentPage--;
-        displayLinks();
-    }
-};
 
 function toggleDarkMode() {
     document.body.classList.toggle('dark-mode');

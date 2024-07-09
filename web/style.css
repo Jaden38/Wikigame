@@ -46,14 +46,58 @@ html, body {
     padding: 10px 20px;
     background-color: var(--container-background);
     display: flex;
-    justify-content: flex-end; /* Changed from flex-end to flex-start */
+    justify-content: flex-end;
     align-items: center;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s;
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 1000; /* Ensure the header bar is above other elements */
+    z-index: 1000;
+}
+
+.menu-button {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    margin-right: 3vw;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border-radius: 50%;
+}
+
+.menu-icon {
+    width: 30px;
+    height: 30px;
+}
+
+body.dark-mode .menu-button img {
+    filter: invert(1);
+}
+
+.toggle-switch {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    margin-right: 3vw;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border-radius: 50%;
+}
+
+.toggle-switch img {
+    width: 30px;
+    height: 30px;
+    transition: filter 0.3s;
+}
+
+body.dark-mode .toggle-switch img {
+    filter: invert(1);
+}
+
+.toggle-switch:hover {
+    background-color: var(--btn-background);
+    border-radius: 50%;
 }
 
 .container {
@@ -69,7 +113,7 @@ html, body {
     flex-direction: column;
     height: 90vh;
     overflow: hidden;
-    margin: 60px auto 20px auto; /* Adjusted for header bar */
+    margin: 60px auto 20px auto;
     transition: background-color 0.3s;
 }
 
@@ -178,29 +222,4 @@ h1 {
     font-weight: bold;
     color: var(--summary-of-color);
     font-size: 1.2em;
-}
-
-.toggle-switch {
-    background-color: transparent;
-    border: none;
-    padding: 0;
-    margin-right: 3vw; /* Add margin to space out from other elements */
-    cursor: pointer;
-    transition: background-color 0.3s;
-    border-radius: 50%; /* Ensure the hover effect is always round */
-}
-
-.toggle-switch img {
-    width: 30px;
-    height: 30px;
-    transition: filter 0.3s; /* For smooth transition to white icon in dark mode */
-}
-
-body.dark-mode .toggle-switch img {
-    filter: invert(1); /* Make the icon white in dark mode */
-}
-
-.toggle-switch:hover {
-    background-color: var(--btn-background);
-    border-radius: 50%;
 }

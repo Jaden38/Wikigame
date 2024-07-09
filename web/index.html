@@ -1,42 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WikiGame</title>
+    <title>WikiGame Menu</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <header class="header-bar">
         <button class="toggle-switch" onclick="toggleDarkMode()">
             <img src="resources/darkmode.png" alt="Dark Mode Toggle" class="toggle-icon">
         </button>
-        <!-- Add other header elements here -->
     </header>
-    <div id="game-container" class="container">
+    <div class="menu-container">
+
         <h1>WikiGame</h1>
-        <div id="game-info" class="info-box">
-            <p id="start">Départ: <span id="start-title"></span></p>
-            <p id="target">Cible: <span id="end-title"></span></p>
-        </div>
-        <input type="text" id="search-bar" placeholder="Rechercher des liens..." oninput="filterLinks()">
-        <div id="content-container">
-            <div id="summary-container" class="summary-box">
-                <p id="current">Actuellement: <span id="current-title"></span></p>
-                <p id="summary" data-current-summary=""></p>
-            </div>
-            <div id="links-container" class="links-container"></div>
-        </div>
-        <div id="pagination-info" class="pagination-info">
-            <p id="total-links"></p>
-            <p id="page-info"></p>
-        </div>
-        <div class="buttons">
-            <button id="prev" class="btn">Previous Page</button>
-            <button id="next" class="btn">Next Page</button>
-        </div>
+        <button id="start-game" class="btn">Start New Game</button>
+        <!-- Add other menu options here if needed -->
     </div>
+    <script>
+        document.getElementById("start-game").onclick = function () {
+            window.location.href = "game.html";
+        };
+    </script>
     <script src="eel.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>

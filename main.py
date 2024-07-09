@@ -55,7 +55,6 @@ def get_links(url):
 
     return list(unique_links.items())
 
-
 def get_first_paragraph(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
