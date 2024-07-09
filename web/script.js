@@ -2,20 +2,28 @@ let currentLinks = [];
 let filteredLinks = [];
 let currentPage = 0;
 const linksPerPage = 20;
-let targetUrl = ""; // To store the target URL
-let hoverTimeout = null; // For debouncing hover events
+let targetUrl = "";
+let hoverTimeout = null;
+
+window.onload = function() {
+    startGame();
+    if (localStorage.getItem('dark-mode') === 'enabled') {
+        document.body.classList.add('dark-mode');
+        document.querySelector('.toggle-switch').innerText = 'Toggle Light Mode';
+    }
+}
 
 async function startGame(depart = null, cible = null) {
     let gameInfo;
     if (depart === null || cible === null) {
-        gameInfo = await eel.start_game()(); // Call without parameters for random links
+        gameInfo = await eel.start_game()();
     } else {
-        gameInfo = await eel.start_game(depart, cible)(); // Call with provided parameters
+        gameInfo = await eel.start_game(depart, cible)();
     }
     
     document.getElementById("start-title").innerText = decodeURIComponent(gameInfo.start_title.replace(/_/g, ' '));
     document.getElementById("end-title").innerText = decodeURIComponent(gameInfo.end_title.replace(/_/g, ' '));
-    targetUrl = gameInfo.end_url; // Set the target URL
+    targetUrl = gameInfo.end_url;
     loadPage(gameInfo.start_url);
 }
 
@@ -35,8 +43,8 @@ async function loadPage(url) {
     document.getElementById("summary").setAttribute("data-current-summary", pageInfo.summary);
 
     currentLinks = pageInfo.links;
-    filteredLinks = currentLinks; // Initialize filteredLinks to currentLinks
-    currentPage = 0; // Reset to first page on new load
+    filteredLinks = currentLinks;
+    currentPage = 0;
     displayLinks();
 }
 
@@ -61,18 +69,18 @@ function debounceHover(callback) {
     if (hoverTimeout) {
         clearTimeout(hoverTimeout);
     }
-    hoverTimeout = setTimeout(callback, 300); // Adjust the delay as needed
+    hoverTimeout = setTimeout(callback, 300);
 }
 
 async function showLinkSummary(url, linkText) {
     if (hoverTimeout) {
-        clearTimeout(hoverTimeout); // Clear the timeout if any new hover occurs
+        clearTimeout(hoverTimeout);
     }
 
     try {
         let pageInfo = await eel.get_page_info(url)();
         if (pageInfo && pageInfo.summary) {
-            document.getElementById("summary").innerHTML = `<span class="summary-of">Résumé de \"${decodeURIComponent(linkText.replace(/_/g, ' '))}\" :</span> ${pageInfo.summary}`;
+            document.getElementById("summary").innerHTML = `<span class="summary-of">Summary of ${decodeURIComponent(linkText.replace(/_/g, ' '))}:</span> ${pageInfo.summary}`;
         }
     } catch (err) {
         console.error('Failed to fetch link summary', err);
@@ -81,7 +89,7 @@ async function showLinkSummary(url, linkText) {
 
 function resetSummary() {
     if (hoverTimeout) {
-        clearTimeout(hoverTimeout); // Clear the timeout if any new hover occurs
+        clearTimeout(hoverTimeout);
     }
     let currentSummary = document.getElementById("summary").getAttribute("data-current-summary");
     document.getElementById("summary").innerHTML = currentSummary;
@@ -90,7 +98,7 @@ function resetSummary() {
 function filterLinks() {
     let query = document.getElementById("search-bar").value.toLowerCase();
     filteredLinks = currentLinks.filter(link => link[1].toLowerCase().includes(query));
-    currentPage = 0; // Reset to first page on new search
+    currentPage = 0;
     displayLinks();
 }
 
@@ -121,6 +129,14 @@ document.getElementById("prev").onclick = function() {
     }
 };
 
-window.onload = function() {
-    startGame(); 
-};
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    const toggleSwitch = document.querySelector('.toggle-switch');
+    if (document.body.classList.contains('dark-mode')) {
+        localStorage.setItem('dark-mode', 'enabled');
+        toggleSwitch.innerText = 'Toggle Light Mode';
+    } else {
+        localStorage.setItem('dark-mode', 'disabled');
+        toggleSwitch.innerText = 'Toggle Dark Mode';
+    }
+}
