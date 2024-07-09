@@ -223,3 +223,30 @@ h1 {
     color: var(--summary-of-color);
     font-size: 1.2em;
 }
+
+.leaderboard {
+    background-color: var(--info-box-background);
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.leaderboard h2 {
+    margin: 0 0 10px 0;
+}
+
+.leaderboard ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.leaderboard li {
+    padding: 5px 0;
+    border-bottom: 1px solid var(--container-background);
+}
+
+.leaderboard li:last-child {
+    border-bottom: none;
+}

@@ -15,15 +15,37 @@
         </button>
     </header>
     <div class="menu-container">
-
         <h1>WikiGame</h1>
         <button id="start-game" class="btn">Start New Game</button>
-        <!-- Add other menu options here if needed -->
+        <!-- Leaderboard section -->
+        <div class="leaderboard">
+            <h2>Leaderboard</h2>
+            <ul id="leaderboard-list"></ul>
+        </div>
     </div>
     <script>
         document.getElementById("start-game").onclick = function () {
-            window.location.href = "game.html";
+            let pseudo = prompt("Please enter your pseudo:");
+            if (pseudo) {
+                localStorage.setItem('pseudo', pseudo);
+                window.location.href = "game.html";
+            }
         };
+
+        // Load leaderboard from localStorage
+        window.onload = function() {
+            loadLeaderboard();
+            console.log('Loading leaderboard : ' + localStorage.getItem('leaderboard'));
+
+        };
+
+        function loadLeaderboard() {
+            let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+            // Filter out entries with null scores
+            leaderboard = leaderboard.filter(entry => entry.score !== null);
+            const leaderboardList = document.getElementById('leaderboard-list');
+            leaderboardList.innerHTML = leaderboard.map(entry => `<li>${entry.pseudo}: ${entry.score.toFixed(2)}</li>`).join('');
+        }
     </script>
     <script src="eel.js"></script>
     <script src="script.js"></script>

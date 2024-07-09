@@ -4,20 +4,25 @@ let currentPage = 0;
 const linksPerPage = 20;
 let targetUrl = "";
 let hoverTimeout = null;
+let startTime;
+let linkClicks = 0;
+let pseudo;
 
-window.onload = function() {
+function initializeGame() {
+    pseudo = localStorage.getItem('pseudo');
+    if (!pseudo) {
+        alert("Pseudo not found. Returning to the menu.");
+        window.location.href = "index.html";
+        return;
+    }
+
     if (document.getElementById("start-title")) { // Check if we are on the game page
-        startGame();
+        startTime = Date.now();
+        document.getElementById('start-time').value = startTime;
+        startGame("France", "Suriname");
     }
     if (localStorage.getItem('dark-mode') === 'enabled') {
         document.body.classList.add('dark-mode');
-    }
-
-    const startGameButton = document.getElementById("start-game");
-    if (startGameButton) {
-        startGameButton.onclick = function() {
-            window.location.href = "game.html";
-        };
     }
 
     const menuButton = document.querySelector(".menu-button");
@@ -46,6 +51,8 @@ window.onload = function() {
             }
         };
     }
+
+    window.addEventListener('beforeunload', recordScore);
 }
 
 async function startGame(depart = null, cible = null) {
@@ -63,12 +70,17 @@ async function startGame(depart = null, cible = null) {
 }
 
 async function loadPage(url) {
+    linkClicks++;
+    document.getElementById('link-clicks').value = linkClicks;
+    
     if (url === targetUrl) {
         document.getElementById("current-title").innerText = "Vous avez atteint la cible!";
         document.getElementById("summary").innerText = "Félicitations! Vous avez atteint la page cible.";
         document.getElementById("links-container").innerHTML = "";
         document.getElementById("total-links").innerText = "";
         document.getElementById("page-info").innerText = "";
+
+        recordScore();
         return;
     }
 
@@ -83,36 +95,14 @@ async function loadPage(url) {
     displayLinks();
 }
 
-function displayLinks() {
-    let linksContainer = document.getElementById("links-container");
-    if (!linksContainer) return;
-    linksContainer.innerHTML = "";
-    let start = currentPage * linksPerPage;
-    let end = Math.min(start + linksPerPage, filteredLinks.length);
-
-    for (let i = start; i < end; i++) {
-        let linkElement = document.createElement("div");
-        linkElement.innerText = `${i + 1} - ${decodeURIComponent(filteredLinks[i][1].replace(/_/g, ' '))}`;
-        linkElement.onclick = () => loadPage(filteredLinks[i][0]);
-        linkElement.onmouseover = () => debounceHover(() => showLinkSummary(filteredLinks[i][0], filteredLinks[i][1]));
-        linkElement.onmouseout = () => resetSummary();
-        linksContainer.appendChild(linkElement);
-    }
-    updatePaginationInfo();
-}
-
-function debounceHover(callback) {
+function debounceHover(callback, delay) {
     if (hoverTimeout) {
         clearTimeout(hoverTimeout);
     }
-    hoverTimeout = setTimeout(callback, 300);
+    hoverTimeout = setTimeout(callback, delay);
 }
 
 async function showLinkSummary(url, linkText) {
-    if (hoverTimeout) {
-        clearTimeout(hoverTimeout);
-    }
-
     try {
         let pageInfo = await eel.get_page_info(url)();
         if (pageInfo && pageInfo.summary) {
@@ -136,6 +126,24 @@ function filterLinks() {
     filteredLinks = currentLinks.filter(link => link[1].toLowerCase().includes(query));
     currentPage = 0;
     displayLinks();
+}
+
+function displayLinks() {
+    let linksContainer = document.getElementById("links-container");
+    if (!linksContainer) return;
+    linksContainer.innerHTML = "";
+    let start = currentPage * linksPerPage;
+    let end = Math.min(start + linksPerPage, filteredLinks.length);
+
+    for (let i = start; i < end; i++) {
+        let linkElement = document.createElement("div");
+        linkElement.innerText = `${i + 1} - ${decodeURIComponent(filteredLinks[i][1].replace(/_/g, ' '))}`;
+        linkElement.onclick = () => loadPage(filteredLinks[i][0]);
+        linkElement.onmouseover = () => debounceHover(() => showLinkSummary(filteredLinks[i][0], filteredLinks[i][1]), 300);
+        linkElement.onmouseout = resetSummary;
+        linksContainer.appendChild(linkElement);
+    }
+    updatePaginationInfo();
 }
 
 function updatePaginationInfo() {
@@ -165,3 +173,36 @@ function toggleDarkMode() {
         localStorage.setItem('dark-mode', 'disabled');
     }
 }
+
+function recordScore() {
+    const endTime = Date.now();
+    const timePassed = (endTime - startTime) / 1000;
+    const clicks = linkClicks;
+    const score = calculateScore(timePassed, clicks);
+
+    let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+    leaderboard.push({ pseudo, score });
+    leaderboard = leaderboard.filter(entry => entry.score !== null); // Remove entries with null scores
+
+    // Remove duplicate pseudos, keeping the highest score
+    leaderboard = leaderboard.reduce((acc, current) => {
+        const existing = acc.find(entry => entry.pseudo === current.pseudo);
+        if (!existing || existing.score < current.score) {
+            acc = acc.filter(entry => entry.pseudo !== current.pseudo);
+            acc.push(current);
+        }
+        return acc;
+    }, []);
+
+    leaderboard.sort((a, b) => b.score - a.score); // Sort leaderboard by score descending
+    localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+}
+
+function calculateScore(timePassed, clicks) {
+    const baseScore = 10000;
+    const timePenalty = Math.exp(timePassed / 1000); // Exponential decay for time
+    const clickPenalty = clicks * 100; // Linear penalty for clicks
+    return Math.max(0, baseScore - timePenalty - clickPenalty);
+}
+
+window.addEventListener('load', initializeGame);
