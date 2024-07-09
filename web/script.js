@@ -3,6 +3,7 @@ let filteredLinks = [];
 let currentPage = 0;
 const linksPerPage = 20;
 let targetUrl = ""; // To store the target URL
+let hoverTimeout = null; // For debouncing hover events
 
 async function startGame(depart = null, cible = null) {
     let gameInfo;
@@ -17,6 +18,7 @@ async function startGame(depart = null, cible = null) {
     targetUrl = gameInfo.end_url; // Set the target URL
     loadPage(gameInfo.start_url);
 }
+
 async function loadPage(url) {
     if (url === targetUrl) {
         document.getElementById("current-title").innerText = "Vous avez atteint la cible!";
@@ -29,7 +31,8 @@ async function loadPage(url) {
 
     let pageInfo = await eel.get_page_info(url)();
     document.getElementById("current-title").innerText = decodeURIComponent(pageInfo.current_title.replace(/_/g, ' '));
-    document.getElementById("summary").innerText = pageInfo.summary;
+    document.getElementById("summary").innerHTML = pageInfo.summary;
+    document.getElementById("summary").setAttribute("data-current-summary", pageInfo.summary);
 
     currentLinks = pageInfo.links;
     filteredLinks = currentLinks; // Initialize filteredLinks to currentLinks
@@ -47,9 +50,41 @@ function displayLinks() {
         let linkElement = document.createElement("div");
         linkElement.innerText = `${i + 1} - ${decodeURIComponent(filteredLinks[i][1].replace(/_/g, ' '))}`;
         linkElement.onclick = () => loadPage(filteredLinks[i][0]);
+        linkElement.onmouseover = () => debounceHover(() => showLinkSummary(filteredLinks[i][0], filteredLinks[i][1]));
+        linkElement.onmouseout = () => resetSummary();
         linksContainer.appendChild(linkElement);
     }
     updatePaginationInfo();
+}
+
+function debounceHover(callback) {
+    if (hoverTimeout) {
+        clearTimeout(hoverTimeout);
+    }
+    hoverTimeout = setTimeout(callback, 300); // Adjust the delay as needed
+}
+
+async function showLinkSummary(url, linkText) {
+    if (hoverTimeout) {
+        clearTimeout(hoverTimeout); // Clear the timeout if any new hover occurs
+    }
+
+    try {
+        let pageInfo = await eel.get_page_info(url)();
+        if (pageInfo && pageInfo.summary) {
+            document.getElementById("summary").innerHTML = `<span class="summary-of">Résumé de \"${decodeURIComponent(linkText.replace(/_/g, ' '))}\" :</span> ${pageInfo.summary}`;
+        }
+    } catch (err) {
+        console.error('Failed to fetch link summary', err);
+    }
+}
+
+function resetSummary() {
+    if (hoverTimeout) {
+        clearTimeout(hoverTimeout); // Clear the timeout if any new hover occurs
+    }
+    let currentSummary = document.getElementById("summary").getAttribute("data-current-summary");
+    document.getElementById("summary").innerHTML = currentSummary;
 }
 
 function filterLinks() {

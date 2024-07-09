@@ -121,3 +121,8 @@ h1 {
 .btn:hover:not(:disabled) {
     background-color: #0056b3;
 }
+
+.summary-of {
+    font-weight: bold;
+    color: #333; 
+}
