@@ -1,1 +1,5 @@
 myenv
+.vs
+.vscode
+__pycache__
+.idea
