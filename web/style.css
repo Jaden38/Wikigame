@@ -35,9 +35,25 @@ html, body {
     background-color: var(--background-color);
     color: var(--text-color);
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     transition: background-color 0.3s, color 0.3s;
+}
+
+.header-bar {
+    width: 100%;
+    padding: 10px 20px;
+    background-color: var(--container-background);
+    display: flex;
+    justify-content: flex-end; /* Changed from flex-end to flex-start */
+    align-items: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000; /* Ensure the header bar is above other elements */
 }
 
 .container {
@@ -53,7 +69,7 @@ html, body {
     flex-direction: column;
     height: 90vh;
     overflow: hidden;
-    margin: 20px auto;
+    margin: 60px auto 20px auto; /* Adjusted for header bar */
     transition: background-color 0.3s;
 }
 
@@ -165,18 +181,26 @@ h1 {
 }
 
 .toggle-switch {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background-color: var(--btn-background);
+    background-color: transparent;
     border: none;
-    color: var(--text-color);
-    padding: 10px 20px;
-    border-radius: 20px;
+    padding: 0;
+    margin-right: 3vw; /* Add margin to space out from other elements */
     cursor: pointer;
     transition: background-color 0.3s;
+    border-radius: 50%; /* Ensure the hover effect is always round */
+}
+
+.toggle-switch img {
+    width: 30px;
+    height: 30px;
+    transition: filter 0.3s; /* For smooth transition to white icon in dark mode */
+}
+
+body.dark-mode .toggle-switch img {
+    filter: invert(1); /* Make the icon white in dark mode */
 }
 
 .toggle-switch:hover {
-    background-color: var(--btn-hover-background);
+    background-color: var(--btn-background);
+    border-radius: 50%;
 }

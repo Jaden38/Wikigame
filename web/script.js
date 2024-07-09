@@ -9,7 +9,6 @@ window.onload = function() {
     startGame();
     if (localStorage.getItem('dark-mode') === 'enabled') {
         document.body.classList.add('dark-mode');
-        document.querySelector('.toggle-switch').innerText = 'Toggle Light Mode';
     }
 }
 
@@ -131,12 +130,9 @@ document.getElementById("prev").onclick = function() {
 
 function toggleDarkMode() {
     document.body.classList.toggle('dark-mode');
-    const toggleSwitch = document.querySelector('.toggle-switch');
     if (document.body.classList.contains('dark-mode')) {
         localStorage.setItem('dark-mode', 'enabled');
-        toggleSwitch.innerText = 'Toggle Light Mode';
     } else {
         localStorage.setItem('dark-mode', 'disabled');
-        toggleSwitch.innerText = 'Toggle Dark Mode';
     }
 }
