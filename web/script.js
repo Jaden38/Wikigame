@@ -11,8 +11,10 @@ let pseudo;
 function initializeGame() {
     pseudo = localStorage.getItem('pseudo');
     if (!pseudo) {
-        alert("Pseudo not found. Returning to the menu.");
-        window.location.href = "index.html";
+        if (window.location.pathname.endsWith("game.html")) {
+            alert("Pseudo not found. Returning to the menu.");
+            window.location.href = "index.html";
+        }
         return;
     }
 
@@ -51,8 +53,6 @@ function initializeGame() {
             }
         };
     }
-
-    window.addEventListener('beforeunload', recordScore);
 }
 
 async function startGame(depart = null, cible = null) {
@@ -181,22 +181,30 @@ function recordScore() {
     const score = calculateScore(timePassed, clicks);
 
     let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
-    leaderboard.push({ pseudo, score });
-    leaderboard = leaderboard.filter(entry => entry.score !== null); // Remove entries with null scores
+    
+    // Check if the new score should be added
+    if (leaderboard.length < 10 || score > leaderboard[leaderboard.length - 1].score) {
+        leaderboard.push({ pseudo, score });
+        leaderboard = leaderboard.filter(entry => entry.score !== null); // Remove entries with null scores
 
-    // Remove duplicate pseudos, keeping the highest score
-    leaderboard = leaderboard.reduce((acc, current) => {
-        const existing = acc.find(entry => entry.pseudo === current.pseudo);
-        if (!existing || existing.score < current.score) {
-            acc = acc.filter(entry => entry.pseudo !== current.pseudo);
-            acc.push(current);
+        // Remove duplicate pseudos, keeping the highest score
+        leaderboard = leaderboard.reduce((acc, current) => {
+            const existing = acc.find(entry => entry.pseudo === current.pseudo);
+            if (!existing || existing.score < current.score) {
+                acc = acc.filter(entry => entry.pseudo !== current.pseudo);
+                acc.push(current);
+            }
+            return acc;
+        }, []);
+
+        leaderboard.sort((a, b) => b.score - a.score); // Sort leaderboard by score descending
+        if (leaderboard.length > 10) {
+            leaderboard = leaderboard.slice(0, 10); // Ensure only top 10 scores are kept
         }
-        return acc;
-    }, []);
-
-    leaderboard.sort((a, b) => b.score - a.score); // Sort leaderboard by score descending
-    localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+        localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+    }
 }
+
 
 function calculateScore(timePassed, clicks) {
     const baseScore = 10000;

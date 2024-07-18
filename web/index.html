@@ -1,54 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WikiGame Menu</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
     <header class="header-bar">
+        <h1 class="menu-title">WikiGame</h1>
         <button class="toggle-switch" onclick="toggleDarkMode()">
-            <img src="resources/darkmode.png" alt="Dark Mode Toggle" class="toggle-icon">
+            <img src="resources/darkmode.png" alt="Dark Mode Toggle" class="toggle-icon" />
         </button>
     </header>
     <div class="menu-container">
-        <h1>WikiGame</h1>
-        <button id="start-game" class="btn">Start New Game</button>
+        <div class="menu-options">
+            <button id="start-game" class="btn">Start New Game</button>
+            <!-- Add other menu options here if needed -->
+        </div>
         <!-- Leaderboard section -->
-        <div class="leaderboard">
+        <div class="leaderboard-container">
             <h2>Leaderboard</h2>
-            <ul id="leaderboard-list"></ul>
+            <div class="leaderboard">
+                <ul id="leaderboard-list"></ul>
+            </div>
         </div>
     </div>
+    <footer class="footer">
+        <p>NITHARD Damien</p>
+    </footer>
     <script>
         document.getElementById("start-game").onclick = function () {
             let pseudo = prompt("Please enter your pseudo:");
             if (pseudo) {
-                localStorage.setItem('pseudo', pseudo);
+                localStorage.setItem("pseudo", pseudo);
                 window.location.href = "game.html";
             }
         };
 
         // Load leaderboard from localStorage
-        window.onload = function() {
+        window.onload = function () {
             loadLeaderboard();
-            console.log('Loading leaderboard : ' + localStorage.getItem('leaderboard'));
-
         };
 
         function loadLeaderboard() {
-            let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
-            // Filter out entries with null scores
-            leaderboard = leaderboard.filter(entry => entry.score !== null);
-            const leaderboardList = document.getElementById('leaderboard-list');
-            leaderboardList.innerHTML = leaderboard.map(entry => `<li>${entry.pseudo}: ${entry.score.toFixed(2)}</li>`).join('');
+            let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+            leaderboard = leaderboard.filter((entry) => entry.score !== null);
+            const leaderboardList = document.getElementById("leaderboard-list");
+            leaderboardList.innerHTML = leaderboard
+                .map(
+                    (entry) => `
+                    <li>
+                        <span class="username">${entry.pseudo}</span>
+                        <span class="score">${entry.score.toFixed(2)}</span>
+                    </li>`
+                )
+                .join("");
         }
     </script>
     <script src="eel.js"></script>
     <script src="script.js"></script>
 </body>
-
 </html>
