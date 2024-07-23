@@ -234,8 +234,27 @@ h1 {
     padding: 10px;
     margin-bottom: 10px;
     flex: 0 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     transition: background-color 0.3s;
+    position: relative; /* Add this line */
 }
+
+.info-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center the items vertically */
+    margin: auto; /* Center the whole block horizontally */
+}
+
+.info-right {
+    display: flex;
+    align-items: center;
+    position: absolute; /* Add this line */
+    right: 10px; /* Add this line to align it to the right edge */
+}
+
 
 #search-bar {
     width: 100%;

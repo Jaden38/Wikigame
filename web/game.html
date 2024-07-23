@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WikiGame</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>
 </head>
+
 <body>
     <header class="header-bar">
         <button class="menu-button" onclick="goToMenu()">
@@ -18,9 +21,15 @@
     <div id="game-container" class="container">
         <h1>WikiGame</h1>
         <div id="game-info" class="info-box">
-            <p id="start">Départ: <span id="start-title"></span></p>
-            <p id="target">Cible: <span id="end-title"></span></p>
+            <div class="info-left">
+                <p id="start">Départ: <span id="start-title"></span></p>
+                <p id="target">Cible: <span id="end-title"></span></p>
+            </div>
+            <div class="info-right">
+                <p>Nombre de sauts: <span id="jump-count">0</span></p>
+            </div>
         </div>
+
         <input type="text" id="search-bar" placeholder="Rechercher des liens..." oninput="filterLinks()">
         <div id="content-container">
             <div id="summary-container" class="summary-box">
@@ -43,10 +52,11 @@
     <script src="eel.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>
 
 <script>
-function goToMenu() {
-    window.location.href = 'index.html';
-}
+    function goToMenu() {
+        window.location.href = 'index.html';
+    }
 </script>

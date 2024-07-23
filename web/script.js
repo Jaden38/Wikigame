@@ -7,6 +7,7 @@ let hoverTimeout = null;
 let startTime;
 let linkClicks = 0;
 let pseudo;
+let pageLoading = false;
 
 function initializeGame() {
     pseudo = localStorage.getItem('pseudo');
@@ -21,6 +22,7 @@ function initializeGame() {
     if (document.getElementById("start-title")) { // Check if we are on the game page
         startTime = Date.now();
         document.getElementById('start-time').value = startTime;
+        linkClicks = -1; // Set to -1 so the first load doesn't count as a click
         startGame("France", "Suriname");
     }
     if (localStorage.getItem('dark-mode') === 'enabled') {
@@ -53,6 +55,9 @@ function initializeGame() {
             }
         };
     }
+
+    // Initialize jump counter display
+    document.getElementById('jump-count').innerText = 0;
 }
 
 async function startGame(depart = null, cible = null) {
@@ -70,9 +75,19 @@ async function startGame(depart = null, cible = null) {
 }
 
 async function loadPage(url) {
-    linkClicks++;
-    document.getElementById('link-clicks').value = linkClicks;
-    
+    if (pageLoading) return; // Prevent multiple increments
+    pageLoading = true;
+
+    if (linkClicks >= 0) { // Don't count the initial load as a click
+        linkClicks++;
+        document.getElementById('link-clicks').value = linkClicks;
+
+        // Update the jump counter display
+        document.getElementById('jump-count').innerText = linkClicks;
+    } else {
+        linkClicks = 0; // Set to 0 after the first load
+    }
+
     if (url === targetUrl) {
         document.getElementById("current-title").innerText = "Vous avez atteint la cible!";
         document.getElementById("summary").innerText = "Félicitations! Vous avez atteint la page cible.";
@@ -81,6 +96,8 @@ async function loadPage(url) {
         document.getElementById("page-info").innerText = "";
 
         recordScore();
+        triggerConfetti();
+        pageLoading = false;
         return;
     }
 
@@ -93,6 +110,42 @@ async function loadPage(url) {
     filteredLinks = currentLinks;
     currentPage = 0;
     displayLinks();
+
+    pageLoading = false; // Allow new increments after the page is fully loaded
+}
+
+function triggerConfetti() {
+    const duration = 15 * 1000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+    function randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    const interval = setInterval(function() {
+        const timeLeft = animationEnd - Date.now();
+
+        if (timeLeft <= 0) {
+            return clearInterval(interval);
+        }
+
+        const particleCount = 50 * (timeLeft / duration);
+
+        // since particles fall down, start a bit higher than random
+        confetti(
+            Object.assign({}, defaults, {
+                particleCount,
+                origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+            })
+        );
+        confetti(
+            Object.assign({}, defaults, {
+                particleCount,
+                origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+            })
+        );
+    }, 250);
 }
 
 function debounceHover(callback, delay) {
@@ -204,7 +257,6 @@ function recordScore() {
         localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
     }
 }
-
 
 function calculateScore(timePassed, clicks) {
     const baseScore = 10000;
